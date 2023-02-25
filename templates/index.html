@@ -1,16 +1,38 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-  <title>CSV Upload App</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.cssscript.com/demo/render-csv-data-table/dist/csv-visualizer.min.js"></script>
+    <title>WBUD</title>
 </head>
+
 <body>
-  <h1>CSV Upload App</h1>
-  <form action="/" method="POST" enctype="multipart/form-data">
-    <label for="file">Select a CSV file:</label>
-    <input type="file" id="file" name="file">
-    <br>
-    <br>
-    <input type="submit" value="Upload">
-  </form>
+    <form action="/" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <!-- <input type="submit" value="Upload"> -->
+        <button type="submit">Upload</button>
+
+
+
+
+        <div class="CSVTable"></div>
+
+        <form action="/download" method="POST">
+            <input type="hidden" name="download_csv" value="{{ data }}">
+            <button type="submit">Download</button>
+        </form>
+        {% if data %}
+        <script>
+            console.log("hi");
+            var data = "{{ data }}";
+            data = data.replace(/&#39;/g, "'");
+            data = data.replace(/&#34;/g, '"');
+            CsvVisualizer.visualize(data, document.querySelector('.CSVTable'));
+        </script>
+        {% endif %}
+    </form>
 </body>
 </html>
