@@ -37,7 +37,7 @@ def get_wikis():
     return cdw, db_domain_map, db_name_map
 
 
-def user_data_retreiver(username):
+def user_data_retreiver(username, edit_count):
     cdw, db_domain_map, db_name_map = get_wikis()
     user_data = {}
     user_data[username] = {}
@@ -85,21 +85,25 @@ def user_data_retreiver(username):
                     ]
                 except:
                     pass
-
-        top_five_wikis = dict(
-            sorted(edits_by_wiki.items(), key=lambda x: x[1], reverse=True)[:5]
+        top_n_wikis = dict(
+            sorted(edits_by_wiki.items(), key=lambda x: x[1], reverse=True)[:min(edit_count, len(edits_by_wiki))]
         )
 
-        me_wiki = list(top_five_wikis.keys())[0]
+        me_wiki = list(top_n_wikis.keys())[0]
         user_data[username]["me_wiki"] = me_wiki
-        user_data[username]["me_wiki_group"] = cdw.query(
-            """database_code == @me_wiki"""
-        ).database_group.values[0]
-        user_data[username]["me_wiki_lang"] = cdw.query(
-            """database_code == @me_wiki"""
-        ).language_name.values[0]
+        # user_data[username]["me_wiki_group"] = cdw.query(
+        #     """database_code == @me_wiki"""
+        # ).database_group.values[0]
+        # user_data[username]["me_wiki_lang"] = cdw.query(
+        #     """database_code == @me_wiki"""
+        # ).language_name.values[0]
+        _edits = key_replace(top_n_wikis, db_name_map)
+        _edits_cols = list(_edits.keys())
+        for i in range(1, len(_edits)):
+            user_data[username][f"me_{i}"] = _edits_cols[i-1]
+            user_data[username][f"me_{i}_edits"] = _edits[_edits_cols[i-1]]
 
-        user_data[username]["edits"] = key_replace(top_five_wikis, db_name_map)
+        # user_data[username]["me_edits"] = _edits
         user_data[username]["groups"] = key_replace(groups_by_wiki, db_name_map)
 
         if len(blocks_by_wiki) == 0:
@@ -110,7 +114,7 @@ def user_data_retreiver(username):
         articles_by_wiki = {}
 
         try:
-            for w in top_five_wikis.keys():
+            for w in top_n_wikis.keys():
 
                 domain_srt = db_domain_map[w]
                 db_group = cdw.query("""database_code == @w""").database_group.values[0]
@@ -144,7 +148,7 @@ def user_data_retreiver(username):
     return user_data
 
 
-def get_user_data(usernames):
+def get_user_data(usernames, edit_count=5):
     """
     Args:
         usernames (df): dataframe with usernames in a column called 'username'
@@ -156,7 +160,7 @@ def get_user_data(usernames):
     failed_users = []
     for u in user_names:
         try:
-            all_user_data.update(user_data_retreiver(u))
+            all_user_data.update(user_data_retreiver(u, edit_count=edit_count))
         except:
             failed_users.append(u)
         

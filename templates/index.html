@@ -2,37 +2,47 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://www.cssscript.com/demo/render-csv-data-table/dist/csv-visualizer.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+    <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet" />
+
     <title>WBUD</title>
 </head>
 
 <body>
     <form action="/" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <!-- <input type="submit" value="Upload"> -->
+        <input type="file" name="csv_file"/>
+        <input type="text" name="edit_count" placeholder="Edit Count" value={{edit_count}} />
         <button type="submit">Upload</button>
-
-
-
-
-        <div class="CSVTable"></div>
-
-        <form action="/download" method="POST">
-            <input type="hidden" name="download_csv" value="{{ data }}">
-            <button type="submit">Download</button>
-        </form>
-        {% if data %}
-        <script>
-            console.log("hi");
-            var data = "{{ data }}";
-            data = data.replace(/&#39;/g, "'");
-            data = data.replace(/&#34;/g, '"');
-            CsvVisualizer.visualize(data, document.querySelector('.CSVTable'));
-        </script>
-        {% endif %}
     </form>
+    <div class="CSVTable"></div>
+
+
+    
+    <form action="/download" method="POST">
+        <select name="filter_csv" id="filter_csv" multiple class="chzn-select">
+            {% for column in cols %}
+            <option value="{{ column }}">{{ column }}</option>
+            {% endfor %}
+        </select>
+        <!-- hidden file values -->
+        <input type="hidden" name="df_value" value="{{ data }}" />
+        <button type="submit">Download</button>
+    </form>
+
+    {% if data %}
+    <script>
+        var data = "{{ data }}";
+        data = data.replace(/&#39;/g, "'");
+        data = data.replace(/&#34;/g, '"');
+        CsvVisualizer.visualize(data, document.querySelector(".CSVTable"));
+        $('.chzn-select').chosen();
+    </script>
+    {% endif %}
 </body>
+
 </html>
