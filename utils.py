@@ -140,7 +140,13 @@ def user_data_retreiver(username, edit_count):
             articles_by_wiki = dict(
                 sorted(articles_by_wiki.items(), key=lambda x: x[1], reverse=True)
             )
-            user_data[username]["articles"] = key_replace(articles_by_wiki, db_name_map)
+            # user_data[username]["articles"] = key_replace(articles_by_wiki, db_name_map)
+            _articles = key_replace(articles_by_wiki, db_name_map)
+            _articles_cols = list(_articles.keys())
+            for i in range(1, len(_articles)):
+                user_data[username][f"article_{i}"] = _articles_cols[i-1]
+                user_data[username][f"articles_{i}_count"] = _articles[_articles_cols[i-1]]
+
 
         except:
             user_data[username]["articles"] = {"failed to retreive/none"}
