@@ -37,4 +37,10 @@ body {
   }
 
 
-  
+  .CSVTable{
+    margin-left: 10%;
+    margin-right: 10%;
+    padding: 0;
+    width: 100%;
+    /* table-layout: fixed; */
+  }

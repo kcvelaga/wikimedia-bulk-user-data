@@ -37,7 +37,7 @@ def get_wikis():
     return cdw, db_domain_map, db_name_map
 
 
-def user_data_retreiver(username, edit_count):
+def user_data_retreiver(username, edit_count, activity_count):
     cdw, db_domain_map, db_name_map = get_wikis()
     user_data = {}
     user_data[username] = {}
@@ -99,7 +99,7 @@ def user_data_retreiver(username, edit_count):
         # ).language_name.values[0]
         _edits = key_replace(top_n_wikis, db_name_map)
         _edits_cols = list(_edits.keys())
-        for i in range(1, len(_edits)):
+        for i in range(1, len(_edits) + 1):
             user_data[username][f"me_{i}"] = _edits_cols[i-1]
             user_data[username][f"me_{i}_edits"] = _edits[_edits_cols[i-1]]
 
@@ -138,12 +138,12 @@ def user_data_retreiver(username, edit_count):
                 articles_by_wiki[w] = n_articles_count
 
             articles_by_wiki = dict(
-                sorted(articles_by_wiki.items(), key=lambda x: x[1], reverse=True)
+                sorted(articles_by_wiki.items(), key=lambda x: x[1], reverse=True)[:min(activity_count, len(articles_by_wiki))]
             )
             # user_data[username]["articles"] = key_replace(articles_by_wiki, db_name_map)
             _articles = key_replace(articles_by_wiki, db_name_map)
             _articles_cols = list(_articles.keys())
-            for i in range(1, len(_articles)):
+            for i in range(1, len(_articles) + 1):
                 user_data[username][f"article_{i}"] = _articles_cols[i-1]
                 user_data[username][f"articles_{i}_count"] = _articles[_articles_cols[i-1]]
 
@@ -154,7 +154,7 @@ def user_data_retreiver(username, edit_count):
     return user_data
 
 
-def get_user_data(usernames, edit_count=5):
+def get_user_data(usernames, edit_count=5, activity_count=0):
     """
     Args:
         usernames (df): dataframe with usernames in a column called 'username'
@@ -166,7 +166,7 @@ def get_user_data(usernames, edit_count=5):
     failed_users = []
     for u in user_names:
         try:
-            all_user_data.update(user_data_retreiver(u, edit_count=edit_count))
+            all_user_data.update(user_data_retreiver(u, edit_count=edit_count, activity_count=activity_count))
         except:
             failed_users.append(u)
         
